@@ -1,7 +1,7 @@
 # Paper Review
 
-Source: <review.md>
-Build: <review.pdf>
+- Source: [`review.md`](review.md)
+- Build: [`review.pdf`](review.pdf)
 
 ## Dependencies
 
