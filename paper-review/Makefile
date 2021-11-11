@@ -1,11 +1,20 @@
 all: review.pdf
 
-%.pdf: %.md
+%.pdf: %.tex
+	docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` --entrypoint sh pandoc/latex -c \
+		"pdflatex $< && bibtex ${<:.tex=} && pdflatex $< && pdflatex $<"
+	rm -rf *.aux *.log *.bbl *.blg
+
+%.tex: %.md
 	docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex \
 		$< \
-		--output $@ \
-		--metadata=date:"`date "+%B %e, %Y"`" # Sets today's date. See https://github.com/jgm/pandoc/issues/2865
+		--metadata=date:"`date "+%B %e, %Y"`" \
+		--standalone \
+		--bibliography bib.bib \
+		--natbib \
+		--output $@
 
 .PHONY: clean
 
-clean: rm -rf *.pdf
+clean:
+	rm -rf *.pdf *.tex
