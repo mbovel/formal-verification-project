@@ -1,6 +1,7 @@
 ---
 documentclass: article
-classoption: fleqn
+classoption:
+- fleqn
 papersize: a4
 fontsize: 11pt
 title: |
@@ -16,15 +17,24 @@ header-includes: |
     \usepackage{amsmath}
     \newtheorem{definition}{Definition}
     \newtheorem{example}{Example}
-    \DeclareMathOperator{\bars}{||}
+    \def\bibfont{\footnotesize}
 bibliography: bib.bib
 biblio-style: plain
 geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm"
+numbersections: true
 ---
 
 # Introduction
 
+Solvers for _SAT Modulo Theories (SMT)_ can solve are widely used to solve _satisfiability_ problems over many different theories. The reviewed paper introduces a variant of the _DPLL Modulo Theories (DPLL(T))_ algorithm that enables not only to find a valid model $M$ for a given formula $F$ withing a given theory $T$, but also to make it _optimal_ with respect to a cost function _f(M)_. This opens the gate to solving problems that were previously out of the scope of SMT solvers, such as Max-SAT and Max-SMT (for which a specific example is given with the radio bandwidth allocation problem).
+
+In this review, we first give a quick introduction to the _DPLL_ and _DPLL(T)_ algorithms, before diving into the contribution that the reviewed paper makes: _DPLL(T) with strengthening_. We illustrate these with the formal definitions, with toy implementations in Scala available on GitHub [@samples] and by discussing the examples presented in the paper. Finally, we discuss the "Benchmarks" part and conclude with general thoughts on the paper.
+
 # Preliminaries
+
+_DPLL_ is an algorithm solving the _boolean satisfiability problem (SAT)_: finding an assignment of variables for a formula $F$ such that it evaluates to true. It is formalized as a set of rules deriving a final _state_ $S$ from a start state $S_0$. This allows to reason easily about it and to prove properties such as termination.
+
+A state either the final $FailState$ state indicating that no model was found, or a pair $F \mathbin{||} M$, where $F$ is the formula to satisfy, in _conjunctive normal form (CNF)_, and _M_ is a partial assignment of the variables of $F$ to boolean values.
 
 \begin{definition}[Classic DPLL]
 As described in \citep[p.941]{solving_sat}.
@@ -40,6 +50,21 @@ l \textnormal{ occurs in some clause of } F \\
 \lnot l \textnormal{ occurs in no clause of } F \\
 l \textnormal{ is undefined in } M.
 \end{cases} \\
+\textsf{Decide: } & & \\
+M \mathbin{||} F &\Longrightarrow M \, l^d \mathbin{||} F &\textnormal{ if} \begin{cases}
+l \textnormal{ or } \lnot l \textnormal{ occurs in a clause of } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{Fail: } & & \\
+M \mathbin{||} F, C &\Longrightarrow FailState &\textnormal{ if} \begin{cases}
+M \models \lnot C \\
+M \textnormal{ contains no decision literals}.
+\end{cases} \\
+\textsf{Backtrack: } & & \\
+M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, \lnot l \mathbin{||} F, C &\textnormal{ if} \begin{cases}
+M \, l^d \, N \models \lnot C \\
+N \textnormal{ contains no decision literals}.
+\end{cases} \\
 \end{array}$$
 \end{definition}
 
@@ -49,31 +74,59 @@ l \textnormal{ is undefined in } M.
 
 \begin{definition}[Basic DPLL]
 
-As described in \citep[p.944]{solving_sat}.
+As described in \citep[p.944]{solving_sat}, replacing the rule "Backtrack" in "Classic DPLL":
 
 $$\begin{array}{lll}
 \textsf{Backjump: } & & \\
+M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, l' \mathbin{||} F, C &\textnormal{ if} \begin{cases}
+M \, l^d \, N \models \lnot C \\
+\textnormal{there exists a clause } C' \lor l' \textnormal{ such that:} \\
+\qquad F, C \models C' \lor l' \textnormal{ and } M \models \lnot C', \\
+\qquad l' \textnormal{ is undefined in } M \textnormal{ and} \\
+\qquad l' \textnormal{ or } \lnot l' \textnormal{ occurs in } F \textnormal{ or in } M \, l^d \, N.
+\end{cases} \\
 \end{array}$$
 
 \end{definition}
 
+[@solving_sat, p. 952-958] (Restart), [@solving_sat, p.957] (Theory Learn, Theory Forget), [@solving_sat, p.958] (Theory Propagate)
+
 \begin{definition}[DPLL Modulo Theories]
 
+In addition to the rules of "Basic DPLL", without "PureLitteral" (and adapting "Backjump"):
+
 $$\begin{array}{lll}
+\textsf{Restart: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} \emptyset \mathbin{||} F & \\
+& & \\
 \textsf{Theory Learn: } & & \\
-\textsf{Theory Forget: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} M \mathbin{||} F, C &\textnormal{ if} \begin{cases}
+\textnormal{ each atom of } C \textnormal{ is in } F \textnormal{ or in } M \\
+F \models_T C.
+\end{cases} \\
+\textsf{Theory forget: } & & \\
+T \mathbin{||} M \mathbin{||} F, C &\Longrightarrow T \mathbin{||} M \mathbin{||} F &\textnormal{ if} \begin{cases}
+F \models_T C.
+\end{cases} \\
+& & \\
+\textsf{Theory Propagate: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} M \, l' \mathbin{||} F &\textnormal{ if} \begin{cases}
+M \models_T l \\
+l' \textnormal{ or } \lnot l' \textnormal{ occurs in } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
 \end{array}$$
 \end{definition}
 
 # Body
 
-## Addition to DPLL Modulo Theories
+## Contribution
 
 \begin{definition}[Strengthening DPLL Modulo Theories]
 
 $$\begin{array}{lll}
-\textsf{Restart: } & & \\
 \textsf{Theory Strenghten: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \land T' \mathbin{||} M \mathbin{||} F & \\
 \end{array}$$
 
 \end{definition}
