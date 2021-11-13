@@ -94,7 +94,7 @@ The goal is to assign frequencies to radio links in a way that minimizes interfe
 "soft" constraints specifying a minimum distance that should ideally be respected.
 
 Radio frequency assignment is encodable in Integer Difference Logic thanks to the authors' observation that the set of available frequencies for any given radio link
-$l_i$ can be seen as the disjoint union of four sets, each constraining the frequency $k$ to be $n + mk$ | $a \le k \le b$ with $n, m, a, b$ integer constants.
+can be seen as the disjoint union of four sets, each constraining the frequency $k$ to be $n + mk$ | $a \le k \le b$ with $n, m, a, b$ integer constants.
 This observation is unfortunately not justified in the paper and not mentioned in the original paper describing
 the problem [@celar] either; it may be an artifact of practical considerations given that this problem is a real-world one.
 
