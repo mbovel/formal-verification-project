@@ -1,5 +1,6 @@
 ---
 documentclass: article
+classoption: fleqn
 papersize: a4
 fontsize: 11pt
 title: |
@@ -12,17 +13,80 @@ author:
 - Solal Pirelli (solal.pirelli@epfl.ch)
 header-includes: |
     \usepackage{amsfonts}
+    \usepackage{amsmath}
+    \newtheorem{definition}{Definition}
+    \newtheorem{example}{Example}
+    \DeclareMathOperator{\bars}{||}
 bibliography: bib.bib
 biblio-style: plain
 ---
 
-# Section 1
+# Introduction
 
-$\frac{a}{b} + \frac{c}{d}$
+# Preliminaries
 
-Test citation [@paper].
+\begin{definition}[Classic DPLL]
+As described in \citep[p.941]{solving_sat}.
+$$\begin{array}{lll}
+\textsf{UnitPropagate: } & & \\
+M \mathbin{||} F, C \lor l &\Longrightarrow M \mathbin{||} F, C \lor l &\textnormal{ if} \begin{cases}
+M \models \lnot C \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{PureLiteral: } & & \\
+M \mathbin{||} F \lor l &\Longrightarrow M \, l \mathbin{||} F \lor l &\textnormal{ if} \begin{cases}
+l \textnormal{ occurs in some clause of } F \\
+\lnot l \textnormal{ occurs in no clause of } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\end{array}$$
+\end{definition}
 
-Some unicode: éà.
+\begin{example}[Classical DPLL example derivation]
+
+\end{example}
+
+\begin{definition}[Basic DPLL]
+
+As described in \citep[p.944]{solving_sat}.
+
+$$\begin{array}{lll}
+\textsf{Backjump: } & & \\
+\end{array}$$
+
+\end{definition}
+
+\begin{definition}[DPLL Modulo Theories]
+
+$$\begin{array}{lll}
+\textsf{Theory Learn: } & & \\
+\textsf{Theory Forget: } & & \\
+\end{array}$$
+\end{definition}
+
+# Body
+
+## Addition to DPLL Modulo Theories
+
+\begin{definition}[Strengthening DPLL Modulo Theories]
+
+$$\begin{array}{lll}
+\textsf{Restart: } & & \\
+\textsf{Theory Strenghten: } & & \\
+\end{array}$$
+
+\end{definition}
+
+## Application: Max-SAT
+
+Definition 2 of §2.2 + high-level overview of the proofs in §2.3.
+Explain §3, maybe make it more prominent (it's quite small in the paper)
+Explain §4.1 and §4.2.
+
+## Application: Max-SMT and difference logic
+
+Explain §5.1.
+
 
 # Benchmarks
 
