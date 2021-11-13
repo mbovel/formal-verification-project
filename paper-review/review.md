@@ -69,4 +69,24 @@ Overall, the results do not show that DPLL(T) is always more efficient, but they
 thought of as SMT problems, such as the radio frequency problem, without the need for a specialized solver.
 
 
+# Conclusion
+
+This paper proposes a variant of SMT in which a theory can be strengthened at will, in order to find answers to Max-SMT problems.
+The paper uses the DPLL framework to prove their variant correct, which allows them to extend an existing DPLL solver with little effort.
+The resulting solver can handle a well-known "hard" problem, radio frequency assignment, which is not typically thought of as an SMT problem
+since it requires optimization and not only satisfiability.
+
+The main strength of the paper is that it explains DPLL(T) and the authors' proposed strengthening very well. The contribution is not just useful
+but also simple enough to understand, and the resulting solver has comparable performance to more complex solvers.
+
+However, the empirical evaluation leaves much to be desired, as the exact benchmarks used are not specified and the results are not always
+in the new solver's favor. The main evaluation outcome is that the solver is "good enough" compared to more complex ones,
+but it is entirely possible that with different sets of benchmarks the results could be very different.
+
+We plan on using Max-SMT in order to improve the counter-example generation of a theorem prover such as Stainless.
+Stainless can use Z3 [@z3], which implements optimization strategies [@z3opt] similar to those described in this paper.
+Thus, we should be able to minimize counter-examples by finding a function that maps an example to its complexity (which is somewhat subjective) and asking Z3 to minimize
+the function's output on the example.
+
+
 # References
