@@ -175,11 +175,11 @@ T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \land T' \mathbin{||} M \mat
 
 \end{definition}
 
+The new step is probably best illustrated with the "Max-SAT" problem.
+
 ## Application: Max-SAT
 
-Definition 2 of §2.2 + high-level overview of the proofs in §2.3.
-Explain §3, maybe make it more prominent (it's quite small in the paper)
-Explain §4.1 and §4.2.
+In the Max-SAT problem we are given a set of clauses where each clause is assigned a weight. The goal is to find a model that maximize the weight of the clauses that are true. To encode it, we add a literal $p_i$ to each clause that can be set to true to "ignore" the clause, and we define a theory that impose a maximum bound on the weights of $p_i$s set to true. To demonstrate this, we made simplified [toy implementation of Strengthening DPLL Modulo Theories](https://github.com/mbovel/formal-verification-project/blob/main/paper-test-implementation/src/main/scala/DPLLTS.scala) and [tested it with the Max-SAT theory](https://github.com/mbovel/formal-verification-project/blob/main/paper-test-implementation/src/test/scala/DPLLTSTest.scala).
 
 ## Application: Max-SMT and difference logic
 
