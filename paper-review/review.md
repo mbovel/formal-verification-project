@@ -85,7 +85,21 @@ Explain §4.1 and §4.2.
 
 ## Application: Max-SMT and difference logic
 
-Explain §5.1.
+The paper shows how the approach can be extended to Max-SMT using the example of weighted Max-SMT modulo Integer Difference Logic ("QF_IDL" in SMT terms),
+which consists of Boolean combinations of $a - b \le k$ inequations with $a, b$ integer variables and $k$ an integer constant.
+
+Integer Difference Logic is typically used for verification, but the paper shows it can also be useful in an unexpected context: radio frequency assignment [@celar].
+The goal is to assign frequencies to radio links in a way that minimizes interference: some links must be at specific frequency distances, while others have
+"soft" constraints specifying a minimum distance that should ideally be respected.
+
+Radio frequency assignment is encodable in Integer Difference Logic thanks to the authors' observation that the set of available frequencies for any given radio link
+$l_i$ can be seen as the disjoint union of four sets, each constraining the frequency $k$ to be $n + mk$ | $a \le k \le b$ with $n, m, a, b$ integer constants.
+This observation is unfortunately not justified in the paper and not mentioned in the original paper describing
+the problem [@celar] either; it may be an artifact of practical considerations given that this problem is a real-world one.
+
+The key idea is to encode these disjoint sets using on the one hand Boolean variables determining which set is picked and on the other hand integer variables
+defining the frequency modulo $m$.
+Constraints on the distance between frequencies of specific links can be naturally defined in Integer Difference Logic since they match the logic's inequality shape.
 
 
 # Benchmarks
