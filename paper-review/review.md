@@ -18,6 +18,13 @@ header-includes: |
     \newtheorem{definition}{Definition}
     \newtheorem{example}{Example}
     \def\bibfont{\footnotesize}
+    \hypersetup{%
+    colorlinks=true,
+    linkcolor=blue,
+    anchorcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+    }
 bibliography: bib.bib
 biblio-style: plain
 geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm"
@@ -34,13 +41,23 @@ In this review, we first give a quick introduction to the _DPLL_ and _DPLL(T)_ a
 
 _DPLL_ is an algorithm solving the _boolean satisfiability problem (SAT)_: finding an assignment of variables for a formula $F$ such that it evaluates to true. It is formalized as a set of rules deriving a final _state_ $S$ from a start state $S_0$. This allows to reason easily about it and to prove properties such as termination.
 
-A state either the final $FailState$ state indicating that no model was found, or a pair $F \mathbin{||} M$, where $F$ is the formula to satisfy, in _conjunctive normal form (CNF)_, and _M_ is a partial assignment of the variables of $F$ to boolean values.
+A state either the final $FailState$ state indicating that no model was found, or a pair $F \mathbin{||} M$, where $F$ is the formula to satisfy and _M_ is a partial assignment of the variables of $F$ to boolean values. $F$ is given in _conjunctive normal form (CNF)_ $C_1 \land \dots \land C_n$ where each _clause_ is a disjunction of _literals_ $l_1 \lor \dots \lor l_n$.
+
+The applicable steps are: 
+
+- "Decide": assign a random value to a literal $l$ and mark it as a _decision literal_, meaning that the value choice was arbitrary and could be changed later.
+- "UnitPropagate": if there exists a clause $l_1 \lor \dots \lor l_n$ such that all $l_i$ are false in $M$ expect one that is unassigned, then it assign it to true, as this is the only possibility to make the clause true.
+- "Backtrack": if we have an invalid assignment, forget all assignments made since the last decision literal $l^d$ and set its value to $\lnot l$. If we cannot, then we have failed ("Fail").
+
+"PureLiteral" is an additional rule that sets the values of all literals from $F$ whose negations are not in $F$ to true. In practice, it can be applied only once at the start of the algorithm, as it does not depend on the assignment.
 
 \begin{definition}[Classic DPLL]
-As described in \citep[p.941]{solving_sat}.
+As described in \citep[p.941]{solving_sat}:
+
+\footnotesize
 $$\begin{array}{lll}
 \textsf{UnitPropagate: } & & \\
-M \mathbin{||} F, C \lor l &\Longrightarrow M \mathbin{||} F, C \lor l &\textnormal{ if} \begin{cases}
+M \mathbin{||} F, C \lor l &\Longrightarrow M \, l \mathbin{||} F, C \lor l &\textnormal{ if} \begin{cases}
 M \models \lnot C \\
 l \textnormal{ is undefined in } M.
 \end{cases} \\
@@ -68,15 +85,33 @@ N \textnormal{ contains no decision literals}.
 \end{array}$$
 \end{definition}
 
-\begin{example}[Classical DPLL example derivation]
+To demonstrate the algorithm, we made [a small toy implementation in Scala](https://github.com/mbovel/formal-verification-project/blob/main/paper-test-implementation/src/main/scala/DPLLC.scala). It is purposely close the formal definition, which makes it inefficient but easy to read.
 
+\begin{example}[Classic DPLL] Example derivations logged by our toy implementation:
+\footnotesize
+
+$$\begin{array}{lrl}
+\textnormal{With } F = (x \lor y) \land (\lnot y \lor z) \land (\lnot x \lor \lnot z): &\emptyset&\Longrightarrow \textnormal{(Decide)} \\
+     & x^d &\Longrightarrow \textnormal{(UnitPropagate)} \\
+    & z \; x^d &\Longrightarrow \textnormal{(UnitPropagate)} \\
+& \lnot y \; \lnot z \; x^d &\Longrightarrow \textnormal{(SUCCESS)} \\ \\
+\textnormal{With } F = (\lnot x \lor y) \land (\lnot y \lor z) &\emptyset&\Longrightarrow \textnormal{(PureLitterals)} \\
+& \lnot x \; z    &\Longrightarrow \textnormal{(Decide)} \\
+& y^d \lnot \; x \; z &\Longrightarrow \textnormal{(SUCCESS)} \\ \\
+\textnormal{With } F = (\lnot x \lor y) \land (\lnot x \lor \lnot y) \land (\lnot x \lor y) &\emptyset&\Longrightarrow \textnormal{(Decide)}: \\
+&   x^d &\Longrightarrow \textnormal{(UnitPropagate)} \\
+& \lnot y \; x^d &\Longrightarrow \textnormal{(Backtrack)} \\
+ &  \lnot x &\Longrightarrow \textnormal{(UnitPropagate)} \\
+ &  y \; \lnot x &\Longrightarrow \textnormal{(SUCCESS)} \\
+\end{array}$$
 \end{example}
 
-\begin{definition}[Basic DPLL]
+The "Backtrack" rule can be replaced by the "Backjump" rule which changes the value of the literal that caused the conflict, instead of simply choosing last decision literal in chronological order as "Backtrack". _Conflict-driven_ back-jumping enables to jump further and to undo several decisions at once, which is more efficient [@solving_sat, p. 944].
 
-As described in \citep[p.944]{solving_sat}, replacing the rule "Backtrack" in "Classic DPLL":
+\begin{definition}[Basic DPLL] Replacing the rule "Backtrack" in "Classic DPLL":
 
 $$\begin{array}{lll}
+\footnotesize
 \textsf{Backjump: } & & \\
 M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, l' \mathbin{||} F, C &\textnormal{ if} \begin{cases}
 M \, l^d \, N \models \lnot C \\
@@ -89,13 +124,22 @@ M \, l^d \, N \models \lnot C \\
 
 \end{definition}
 
-[@solving_sat, p. 952-958] (Restart), [@solving_sat, p.957] (Theory Learn, Theory Forget), [@solving_sat, p.958] (Theory Propagate)
+In the previous algorithms, literals are only boolean variables. However, the same algorithm can be adapted to handle literals that are predicates described in other theories. For example, a literal could be $x = y$ in the theory of equality, or $x < 10$ in the theory of linear arithmetic. The SAT solver does not know these theories, but it can interact with a $Solver_T$ to check that the current assignment $M$ is consistent with respect to $T$.
+
+This is done by adding 4 steps to "Basic DPLL"
+
+- "Theory Learn": adds new clauses to the formula $F$ as needed to _teach_ the DPLL about some implications. For example, if DPLL sets the truth values of the $x = y$ literal to false and $y = x$ to true, this step for the theory of equality could add a clause $\lnot (x = y) \lor (y = x)$ to inform the algorithm of this implication.
+- "Theory forget": as the added clauses can always be re-deduced from $F$, they can also be forgotten if needed (used to save resources).
+- "Theory Propagate": can set the truth values of undecided literals when their implied by the assigned values of existing literals in $M$.
+- "Restart": enables the algorithm to forget the current assignment and start over (used for efficiency).
+
+The theory $T$ is also added to the state of the algorithm.
 
 \begin{definition}[DPLL Modulo Theories]
-
-In addition to the rules of "Basic DPLL", without "PureLitteral" (and adapting "Backjump"):
+In addition to the rules of "Basic DPLL", without "PureLiteral" (and adapting "BackJump"):
 
 $$\begin{array}{lll}
+\footnotesize
 \textsf{Restart: } & & \\
 T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} \emptyset \mathbin{||} F & \\
 & & \\
@@ -120,7 +164,7 @@ l \textnormal{ is undefined in } M.
 
 # Body
 
-## Contribution
+The main contribution of the paper is the addition of a new rule to "DPLL Modulo Theories" allowing to gradually refine the theory $T$ to a stronger theory:
 
 \begin{definition}[Strengthening DPLL Modulo Theories]
 
