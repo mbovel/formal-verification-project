@@ -19,6 +19,7 @@ header-includes: |
     \DeclareMathOperator{\bars}{||}
 bibliography: bib.bib
 biblio-style: plain
+geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm"
 ---
 
 # Introduction

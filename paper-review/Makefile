@@ -8,7 +8,6 @@ all: review.pdf
 %.tex: %.md
 	docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex \
 		$< \
-		--metadata=date:"`date "+%B %e, %Y"`" \
 		--standalone \
 		--bibliography bib.bib \
 		--natbib \
