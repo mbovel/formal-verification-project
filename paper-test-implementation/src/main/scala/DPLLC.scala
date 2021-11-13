@@ -11,16 +11,14 @@ case class Literal(id: String, negative: Boolean)(val decision: Boolean):
 object Literal:
   def apply(id: String): Literal = Literal(id: String, false)(false)
 
-type Formula = List[List[Literal]]
-
+type Clause = List[Literal]
+type Formula = List[Clause]
 type Model = List[Literal]
 
-final val DEBUG = true
+private def logStep(step: String, m: Model) =
+  println(f"${m.mkString(" ")}%20s ==> ($step)")
 
-inline def logStep(step: String, m: Model) =
-  inline if DEBUG then println(f"${m.mkString(" ")}%20s ==> ($step)")
-
-def DDPL(f: Formula): Option[Model] =
+def DPLLC(f: Formula): Option[Model] =
   val allLiterals = f.flatten.distinct
 
   @tailrec
