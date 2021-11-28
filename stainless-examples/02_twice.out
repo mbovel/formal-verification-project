@@ -1,0 +1,28 @@
+warning: Parallelism is disabled.
+Starting verification...
+Verified: 0 / 0Verified: 0 / 2
+warning:  - Result for 'body assertion: Multiplication overflow' VC for twice @4:9:
+warning: x > 100 || x == 0 || 2 == (x * 2) / x
+02_twice.scala:4:9: warning:  => INVALID
+                   x * 2
+                   ^^^^^
+warning: Found counter-example:
+warning:   x: Int -> -2147483648
+Verified: 0 / 2
+warning:  - Result for 'postcondition' VC for twice @2:5:
+warning: x > 100 || x != 0 && 2 != (x * 2) / x || x * 2 >= x
+02_twice.scala:2:5: warning:  => INVALID
+               def twice(x: Int): Int = {
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^...
+warning: Found counter-example:
+warning:   x: Int -> -3073
+Verified: 0 / 2
+  
+ stainless summary 
+                                                                         
+02_twice.scala:2:5:   twice  postcondition                            invalid  U:smt-z3  0.1 
+02_twice.scala:4:9:   twice  body assertion: Multiplication overflow  invalid  U:smt-z3  0.3 
+..............................................................................................
+total: 2    valid: 0    (0 from cache) invalid: 2    unknown: 0    time:     0.4             
+
+Shutting down executor service.
