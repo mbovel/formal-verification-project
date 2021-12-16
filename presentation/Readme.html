@@ -54,9 +54,30 @@
 
 <section id="problem" class="slide level1">
 <h1>Problem</h1>
-<p><insert Stainless example with poor counter-example here></p>
+<pre class="scala"><code>def f(n: Int): Unit = {
+  assert(n * n &gt; 10)
+}</code></pre>
+<pre><code>Found counter-example:
+  n: Int -&gt; -1743011841</code></pre>
 </section>
 <section id="problem-1" class="slide level1">
+<h1>Problem</h1>
+<pre class="scala"><code>sealed abstract class Thing {
+  def size: Int = this match {
+    case Big(a, b, c) =&gt; a + b + c
+    case Small() =&gt; 0
+    case Medium(a) =&gt; a
+  }
+}
+case class Big(a: Int, b: Int, c: Int) extends Thing
+case class Small() extends Thing
+case class Medium(a: Int) extends Thing
+
+def g(t: Thing): Unit = {
+  assert(t.size &gt; 10)
+}</code></pre>
+</section>
+<section id="problem-2" class="slide level1">
 <h1>Problem</h1>
 <p>Solver can choose <em>any</em> SAT assignment</p>
 <p>Counter-examples could be arbitrarily large</p>
@@ -64,8 +85,7 @@
 <section id="what-we-want" class="slide level1">
 <h1>What we want</h1>
 <p><em>Minimal</em> counter-example</p>
-<p>e.g.</p>
-<p><insert minimal counter-example here></p>
+<p>e.g. <span class="math inline">x &gt; 0 \rightarrow 1</span>, not <span class="math inline">100</span></p>
 </section>
 <section id="what-we-want-1" class="slide level1">
 <h1>What we want</h1>

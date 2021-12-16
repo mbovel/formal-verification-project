@@ -5,8 +5,35 @@ author: Solal Pirelli, Matt Bovel
 
 # Problem
 
-<insert Stainless example with poor counter-example here>
+```scala
+def f(n: Int): Unit = {
+  assert(n * n > 10)
+}
+```
 
+```
+Found counter-example:
+  n: Int -> -1743011841
+```
+
+# Problem
+
+```scala
+sealed abstract class Thing {
+  def size: Int = this match {
+    case Big(a, b, c) => a + b + c
+    case Small() => 0
+    case Medium(a) => a
+  }
+}
+case class Big(a: Int, b: Int, c: Int) extends Thing
+case class Small() extends Thing
+case class Medium(a: Int) extends Thing
+
+def g(t: Thing): Unit = {
+  assert(t.size > 10)
+}
+```
 
 # Problem
 
@@ -19,9 +46,7 @@ Counter-examples could be arbitrarily large
 
 _Minimal_ counter-example
 
-e.g.
-
-<insert minimal counter-example here>
+e.g. $x > 0 \rightarrow 1$, not $100$
 
 
 # What we want
