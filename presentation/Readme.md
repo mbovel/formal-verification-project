@@ -1,7 +1,87 @@
 ---
-title: Adding support for model optimization in Stainless
-author: Solal Pirelli Matt Bovel
+title: Minimizing Stainless counter-examples
+author: Solal Pirelli, Matt Bovel
 ---
+
+# Problem
+
+<insert Stainless example with poor counter-example here>
+
+
+# Problem
+
+Solver can choose _any_ SAT assignment
+
+Counter-examples could be arbitrarily large
+
+
+# What we want
+
+_Minimal_ counter-example
+
+e.g.
+
+<insert minimal counter-example here>
+
+
+# What we want
+
+"Minimal" is blurry over many vars -> sum?
+
+"Minimal" is blurry over non-ints -> "size" of types?
+
+
+# How?
+
+"On SAT Modulo Theories and Optimization Problems"
+
+_Robert Nieuwenhuis and Albert Oliveras, 2006_
+
+
+# Max-SMT
+
+= Max + SMT
+
+"Find an assignment that maximizes X satisfying F(X)"
+
+
+# Weighted Max-SMT
+
+List of (weight, constraint) tuples
+
+Maximize sum of satisfied constraint weights
+
+
+# DPLL(T) strengthening
+
+<how much detail to put here? may need 2-3 slides>
+
+
+# What we use
+
+Maximize / minimize operations
+
+Already implemented in Z3
+
+
+# Implementation
+
+<Stainless/Inox/Z3 diagram here>
+
+
+# Implementation
+
+New solver type in Inox, Stainless's backend
+
+No new code in Stainless needed
+
+
+# Results
+
+<insert example here, including command-line calling stainless with our solver>
+
+
+
 
 # Scala
 

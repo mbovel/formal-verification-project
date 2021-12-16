@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="author" content="Solal Pirelli Matt Bovel">
-  <meta name="dcterms.date" content="2021-12-15">
-  <title>Adding support for model optimization in Stainless</title>
+  <meta name="author" content="Solal Pirelli, Matt Bovel">
+  <meta name="dcterms.date" content="2021-12-16">
+  <title>Minimizing Stainless counter-examples</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -47,11 +47,68 @@
     <div class="slides">
 
 <section id="title-slide">
-  <h1 class="title">Adding support for model optimization in Stainless</h1>
-  <p class="author">Solal Pirelli Matt Bovel</p>
-  <p class="date">December 15, 2021</p>
+  <h1 class="title">Minimizing Stainless counter-examples</h1>
+  <p class="author">Solal Pirelli, Matt Bovel</p>
+  <p class="date">December 16, 2021</p>
 </section>
 
+<section id="problem" class="slide level1">
+<h1>Problem</h1>
+<p><insert Stainless example with poor counter-example here></p>
+</section>
+<section id="problem-1" class="slide level1">
+<h1>Problem</h1>
+<p>Solver can choose <em>any</em> SAT assignment</p>
+<p>Counter-examples could be arbitrarily large</p>
+</section>
+<section id="what-we-want" class="slide level1">
+<h1>What we want</h1>
+<p><em>Minimal</em> counter-example</p>
+<p>e.g.</p>
+<p><insert minimal counter-example here></p>
+</section>
+<section id="what-we-want-1" class="slide level1">
+<h1>What we want</h1>
+<p>“Minimal” is blurry over many vars -&gt; sum?</p>
+<p>“Minimal” is blurry over non-ints -&gt; “size” of types?</p>
+</section>
+<section id="how" class="slide level1">
+<h1>How?</h1>
+<p>“On SAT Modulo Theories and Optimization Problems”</p>
+<p><em>Robert Nieuwenhuis and Albert Oliveras, 2006</em></p>
+</section>
+<section id="max-smt" class="slide level1">
+<h1>Max-SMT</h1>
+<p>= Max + SMT</p>
+<p>“Find an assignment that maximizes X satisfying F(X)”</p>
+</section>
+<section id="weighted-max-smt" class="slide level1">
+<h1>Weighted Max-SMT</h1>
+<p>List of (weight, constraint) tuples</p>
+<p>Maximize sum of satisfied constraint weights</p>
+</section>
+<section id="dpllt-strengthening" class="slide level1">
+<h1>DPLL(T) strengthening</h1>
+<p>&lt;how much detail to put here? may need 2-3 slides&gt;</p>
+</section>
+<section id="what-we-use" class="slide level1">
+<h1>What we use</h1>
+<p>Maximize / minimize operations</p>
+<p>Already implemented in Z3</p>
+</section>
+<section id="implementation" class="slide level1">
+<h1>Implementation</h1>
+<p><Stainless/Inox/Z3 diagram here></p>
+</section>
+<section id="implementation-1" class="slide level1">
+<h1>Implementation</h1>
+<p>New solver type in Inox, Stainless’s backend</p>
+<p>No new code in Stainless needed</p>
+</section>
+<section id="results" class="slide level1">
+<h1>Results</h1>
+<p>&lt;insert example here, including command-line calling stainless with our solver&gt;</p>
+</section>
 <section id="scala" class="slide level1">
 <h1>Scala</h1>
 <pre class="scala"><code>def (x: Int) = {
