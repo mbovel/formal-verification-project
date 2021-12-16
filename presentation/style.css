@@ -1,0 +1,7 @@
+:root {
+    --r-heading1-size: 2.2em;
+}
+
+.reveal .math.display {
+    font-size: 0.55em;
+}
