@@ -91,8 +91,7 @@ Already implemented in Z3
 
 # Implementation
 
-<Stainless/Inox/Z3 diagram here>
-
+![](Figure.svg)
 
 # Implementation
 
@@ -107,14 +106,6 @@ No new code in Stainless needed
 
 
 
-
-# Scala
-
-```scala
-def (x: Int) = {
-  x + 42
-}
-```
 
 # Maths
 
