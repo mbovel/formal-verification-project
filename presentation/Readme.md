@@ -11,6 +11,8 @@ def f(n: Int): Unit = {
 }
 ```
 
+# Problem
+
 ```
 Found counter-example:
   n: Int -> -1743011841
@@ -47,13 +49,6 @@ Counter-examples could be arbitrarily large
 _Minimal_ counter-example
 
 e.g. $x > 0 \rightarrow 1$, not $100$
-
-
-# What we want
-
-"Minimal" is blurry over many vars -> sum?
-
-"Minimal" is blurry over non-ints -> "size" of types?
 
 
 # How?
@@ -146,7 +141,7 @@ $$\begin{array}{lll}
 T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \land T' \mathbin{||} M \mathbin{||} F & \\
 \end{array}$$
 
-# Demo ?
+# [Demo](https://github.com/mbovel/formal-verification-project/blob/main/paper-test-implementation/src/test/scala/DPLLTSTest.scala)
 
 # Max-SMT
 
@@ -178,7 +173,9 @@ New solver type in Inox, Stainless's backend
 
 No new code in Stainless needed
 
+# [Demo](https://github.com/epfl-lara/inox/pull/171/files#diff-d6405538377e4b20686a09694f6ecd0957c72d54ba70fa5fb20694631e7b2ffcR107)
 
-# Demo
+# Next steps
 
-# References
+- Implementation in Stainless
+- What is "Minimal" for multiple variables?
