@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Solal Pirelli, Matt Bovel">
-  <meta name="dcterms.date" content="2021-12-16">
+  <meta name="dcterms.date" content="2021-12-17">
   <title>Minimizing Stainless counter-examples</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -49,7 +49,7 @@
 <section id="title-slide">
   <h1 class="title">Minimizing Stainless counter-examples</h1>
   <p class="author">Solal Pirelli, Matt Bovel</p>
-  <p class="date">December 16, 2021</p>
+  <p class="date">December 17, 2021</p>
 </section>
 
 <section id="problem" class="slide level1">
@@ -97,6 +97,94 @@ def g(t: Thing): Unit = {
 <p>“On SAT Modulo Theories and Optimization Problems”</p>
 <p><em>Robert Nieuwenhuis and Albert Oliveras, 2006</em></p>
 </section>
+<section id="dpll" class="slide level1">
+<h1>DPLL</h1>
+<ul>
+<li>Solves <em>SAT</em></li>
+<li>Formalized as a set of rules deriving a final <em>state</em> <span class="math inline">S</span> from a start state <span class="math inline">S_0</span></li>
+<li>A state is either <span class="math inline">FailState</span> or <span class="math inline">F \mathbin{||} M</span></li>
+<li><span class="math inline">F</span> is the formula to satisfy</li>
+<li><span class="math inline">M</span> is a partial assignment of variables from <span class="math inline">F</span></li>
+</ul>
+</section>
+<section id="derivation-rules" class="slide level1">
+<h1>Derivation rules</h1>
+<p><span class="math display">\begin{array}{lll}
+\textsf{UnitPropagate: } &amp; &amp; \\
+M \mathbin{||} F, C \lor l &amp;\Longrightarrow M \, l \mathbin{||} F, C \lor l &amp;\textnormal{ if} \begin{cases}
+M \models \lnot C \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{Decide: } &amp; &amp; \\
+M \mathbin{||} F &amp;\Longrightarrow M \, l^d \mathbin{||} F &amp;\textnormal{ if} \begin{cases}
+l \textnormal{ or } \lnot l \textnormal{ occurs in a clause of } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{Backtrack: } &amp; &amp; \\
+M \, l^d \, N \mathbin{||} F, C &amp;\Longrightarrow M \, \lnot l \mathbin{||} F, C &amp;\textnormal{ if} \begin{cases}
+M \, l^d \, N \models \lnot C \\
+N \textnormal{ contains no decision literals}.
+\end{cases} \\
+\end{array}</span></p>
+</section>
+<section id="example" class="slide level1">
+<h1>Example</h1>
+<p>Given</p>
+<p><span class="math display">F = (\lnot x \lor y) \land (\lnot x \lor \lnot y) \land (\lnot x \lor y)</span></p>
+<p>we have the following derivation:</p>
+<p><span class="math display">\begin{array}{lrl}
+&amp;\emptyset&amp;\Longrightarrow \textnormal{(Decide)} \\
+&amp;   x^d &amp;\Longrightarrow \textnormal{(UnitPropagate)} \\
+&amp; \lnot y \; x^d &amp;\Longrightarrow \textnormal{(Backtrack)} \\
+ &amp;  \lnot x &amp;\Longrightarrow \textnormal{(UnitPropagate)} \\
+ &amp;  y \; \lnot x &amp;\Longrightarrow \textnormal{(SUCCESS)} \\
+\end{array}</span></p>
+</section>
+<section id="dpll-modulo-theories" class="slide level1">
+<h1>DPLL Modulo Theories</h1>
+<ul>
+<li>Solves <em>SMT</em></li>
+<li>Adapts DPLL to handle predicates from other theories</li>
+</ul>
+</section>
+<section id="extra-derivation-rules" class="slide level1">
+<h1>Extra derivation rules</h1>
+<p><span class="math display">\begin{array}{lll}
+\textsf{Theory Learn: } &amp; &amp; \\
+T \mathbin{||} M \mathbin{||} F &amp;\Longrightarrow T \mathbin{||} M \mathbin{||} F, C &amp;\textnormal{ if} \begin{cases}
+\textnormal{ each atom of } C \textnormal{ is in } F \textnormal{ or in } M \\
+F \models_T C.
+\end{cases} \\
+\textsf{Theory forget: } &amp; &amp; \\
+T \mathbin{||} M \mathbin{||} F, C &amp;\Longrightarrow T \mathbin{||} M \mathbin{||} F &amp;\textnormal{ if} \begin{cases}
+F \models_T C.
+\end{cases} \\
+&amp; &amp; \\
+\textsf{Theory Propagate: } &amp; &amp; \\
+T \mathbin{||} M \mathbin{||} F &amp;\Longrightarrow T \mathbin{||} M \, l&#39; \mathbin{||} F &amp;\textnormal{ if} \begin{cases}
+M \models_T l \\
+l&#39; \textnormal{ or } \lnot l&#39; \textnormal{ occurs in } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\end{array}</span></p>
+</section>
+<section id="strengthening-dpll-modulo-theories" class="slide level1">
+<h1>Strengthening DPLL Modulo Theories</h1>
+<ul>
+<li>Can <em>strengthen</em> the theory at any point</li>
+<li>Allows to solve <em>optimization</em> problems</li>
+</ul>
+</section>
+<section id="extra-derivation-rule" class="slide level1">
+<h1>Extra derivation rule</h1>
+<p><span class="math display">\begin{array}{lll}
+\textsf{Theory Strenghten: } &amp; &amp; \\
+T \mathbin{||} M \mathbin{||} F &amp;\Longrightarrow T \land T&#39; \mathbin{||} M \mathbin{||} F &amp; \\
+\end{array}</span></p>
+</section>
+<section id="demo" class="slide level1">
+<h1>Demo ?</h1>
+</section>
 <section id="max-smt" class="slide level1">
 <h1>Max-SMT</h1>
 <p>= Max + SMT</p>
@@ -106,10 +194,6 @@ def g(t: Thing): Unit = {
 <h1>Weighted Max-SMT</h1>
 <p>List of (weight, constraint) tuples</p>
 <p>Maximize sum of satisfied constraint weights</p>
-</section>
-<section id="dpllt-strengthening" class="slide level1">
-<h1>DPLL(T) strengthening</h1>
-<p>&lt;how much detail to put here? may need 2-3 slides&gt;</p>
 </section>
 <section id="what-we-use" class="slide level1">
 <h1>What we use</h1>
@@ -125,41 +209,11 @@ def g(t: Thing): Unit = {
 <p>New solver type in Inox, Stainless’s backend</p>
 <p>No new code in Stainless needed</p>
 </section>
-<section id="results" class="slide level1">
-<h1>Results</h1>
-<p>&lt;insert example here, including command-line calling stainless with our solver&gt;</p>
+<section id="demo-1" class="slide level1">
+<h1>Demo</h1>
 </section>
-<section id="scala" class="slide level1">
-<h1>Scala</h1>
-<pre class="scala"><code>def (x: Int) = {
-  x + 42
-}</code></pre>
-</section>
-<section id="maths" class="slide level1">
-<h1>Maths</h1>
-<p>Test</p>
-<p><span class="math display">\begin{array}{lll}
-\footnotesize
-\textsf{Backjump: } &amp; &amp; \\
-M \, l^d \, N \mathbin{||} F, C &amp;\Longrightarrow M \, l&#39; \mathbin{||} F, C &amp;\textnormal{ if} \begin{cases}
-M \, l^d \, N \models \lnot C \\
-\textnormal{there exists a clause } C&#39; \lor l&#39; \textnormal{ such that:} \\
-\qquad F, C \models C&#39; \lor l&#39; \textnormal{ and } M \models \lnot C&#39;, \\
-\qquad l&#39; \textnormal{ is undefined in } M \textnormal{ and} \\
-\qquad l&#39; \textnormal{ or } \lnot l&#39; \textnormal{ occurs in } F \textnormal{ or in } M \, l^d \, N.
-\end{cases} \\
-\end{array}</span></p>
-<p><span class="math display">\begin{array}{lll}
-\footnotesize
-\textsf{Backjump: } &amp; &amp; \\
-M \, l^d \, N \mathbin{||} F, C &amp;\Longrightarrow M \, l&#39; \mathbin{||} F, C &amp;\textnormal{ if} \begin{cases}
-M \, l^d \, N \models \lnot C \\
-\textnormal{there exists a clause } C&#39; \lor l&#39; \textnormal{ such that:} \\
-\qquad F, C \models C&#39; \lor l&#39; \textnormal{ and } M \models \lnot C&#39;, \\
-\qquad l&#39; \textnormal{ is undefined in } M \textnormal{ and} \\
-\qquad l&#39; \textnormal{ or } \lnot l&#39; \textnormal{ occurs in } F \textnormal{ or in } M \, l^d \, N.
-\end{cases} \\
-\end{array}</span></p>
+<section id="references" class="slide level1">
+<h1>References</h1>
 </section>
     </div>
   </div>

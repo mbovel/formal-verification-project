@@ -63,6 +63,91 @@ e.g. $x > 0 \rightarrow 1$, not $100$
 _Robert Nieuwenhuis and Albert Oliveras, 2006_
 
 
+
+# DPLL
+
+- Solves _SAT_
+- Formalized as a set of rules deriving a final _state_ $S$ from a start state $S_0$
+- A state is either $FailState$ or $F \mathbin{||} M$
+- $F$ is the formula to satisfy
+- $M$ is a partial assignment of variables from $F$
+
+# Derivation rules
+
+$$\begin{array}{lll}
+\textsf{UnitPropagate: } & & \\
+M \mathbin{||} F, C \lor l &\Longrightarrow M \, l \mathbin{||} F, C \lor l &\textnormal{ if} \begin{cases}
+M \models \lnot C \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{Decide: } & & \\
+M \mathbin{||} F &\Longrightarrow M \, l^d \mathbin{||} F &\textnormal{ if} \begin{cases}
+l \textnormal{ or } \lnot l \textnormal{ occurs in a clause of } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\textsf{Backtrack: } & & \\
+M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, \lnot l \mathbin{||} F, C &\textnormal{ if} \begin{cases}
+M \, l^d \, N \models \lnot C \\
+N \textnormal{ contains no decision literals}.
+\end{cases} \\
+\end{array}$$
+
+# Example
+
+Given
+
+$$F = (\lnot x \lor y) \land (\lnot x \lor \lnot y) \land (\lnot x \lor y)$$
+
+we have the following derivation:
+
+$$\begin{array}{lrl}
+&\emptyset&\Longrightarrow \textnormal{(Decide)} \\
+&   x^d &\Longrightarrow \textnormal{(UnitPropagate)} \\
+& \lnot y \; x^d &\Longrightarrow \textnormal{(Backtrack)} \\
+ &  \lnot x &\Longrightarrow \textnormal{(UnitPropagate)} \\
+ &  y \; \lnot x &\Longrightarrow \textnormal{(SUCCESS)} \\
+\end{array}$$
+
+# DPLL Modulo Theories
+
+- Solves _SMT_
+- Adapts DPLL to handle predicates from other theories
+
+# Extra derivation rules
+
+$$\begin{array}{lll}
+\textsf{Theory Learn: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} M \mathbin{||} F, C &\textnormal{ if} \begin{cases}
+\textnormal{ each atom of } C \textnormal{ is in } F \textnormal{ or in } M \\
+F \models_T C.
+\end{cases} \\
+\textsf{Theory forget: } & & \\
+T \mathbin{||} M \mathbin{||} F, C &\Longrightarrow T \mathbin{||} M \mathbin{||} F &\textnormal{ if} \begin{cases}
+F \models_T C.
+\end{cases} \\
+& & \\
+\textsf{Theory Propagate: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \mathbin{||} M \, l' \mathbin{||} F &\textnormal{ if} \begin{cases}
+M \models_T l \\
+l' \textnormal{ or } \lnot l' \textnormal{ occurs in } F \\
+l \textnormal{ is undefined in } M.
+\end{cases} \\
+\end{array}$$
+
+# Strengthening DPLL Modulo Theories
+
+- Can *strengthen* the theory at any point
+- Allows to solve _optimization_ problems
+
+# Extra derivation rule
+
+$$\begin{array}{lll}
+\textsf{Theory Strenghten: } & & \\
+T \mathbin{||} M \mathbin{||} F &\Longrightarrow T \land T' \mathbin{||} M \mathbin{||} F & \\
+\end{array}$$
+
+# Demo ?
+
 # Max-SMT
 
 = Max + SMT
@@ -75,12 +160,6 @@ _Robert Nieuwenhuis and Albert Oliveras, 2006_
 List of (weight, constraint) tuples
 
 Maximize sum of satisfied constraint weights
-
-
-# DPLL(T) strengthening
-
-<how much detail to put here? may need 2-3 slides>
-
 
 # What we use
 
@@ -100,37 +179,6 @@ New solver type in Inox, Stainless's backend
 No new code in Stainless needed
 
 
-# Results
+# Demo
 
-<insert example here, including command-line calling stainless with our solver>
-
-
-
-
-# Maths
-
-Test
-
-$$\begin{array}{lll}
-\footnotesize
-\textsf{Backjump: } & & \\
-M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, l' \mathbin{||} F, C &\textnormal{ if} \begin{cases}
-M \, l^d \, N \models \lnot C \\
-\textnormal{there exists a clause } C' \lor l' \textnormal{ such that:} \\
-\qquad F, C \models C' \lor l' \textnormal{ and } M \models \lnot C', \\
-\qquad l' \textnormal{ is undefined in } M \textnormal{ and} \\
-\qquad l' \textnormal{ or } \lnot l' \textnormal{ occurs in } F \textnormal{ or in } M \, l^d \, N.
-\end{cases} \\
-\end{array}$$
-
-$$\begin{array}{lll}
-\footnotesize
-\textsf{Backjump: } & & \\
-M \, l^d \, N \mathbin{||} F, C &\Longrightarrow M \, l' \mathbin{||} F, C &\textnormal{ if} \begin{cases}
-M \, l^d \, N \models \lnot C \\
-\textnormal{there exists a clause } C' \lor l' \textnormal{ such that:} \\
-\qquad F, C \models C' \lor l' \textnormal{ and } M \models \lnot C', \\
-\qquad l' \textnormal{ is undefined in } M \textnormal{ and} \\
-\qquad l' \textnormal{ or } \lnot l' \textnormal{ occurs in } F \textnormal{ or in } M \, l^d \, N.
-\end{cases} \\
-\end{array}$$
+# References
