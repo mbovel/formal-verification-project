@@ -3,6 +3,10 @@ title: Minimizing Stainless counter-examples
 author: Solal Pirelli, Matt Bovel
 ---
 
+# Link
+
+<https://go.epfl.ch/fv-min>
+
 # Problem
 
 ```scala
