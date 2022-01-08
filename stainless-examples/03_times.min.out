@@ -1,0 +1,28 @@
+warning: Parallelism is disabled.
+Starting verification...
+Verified: 0 / 0Verified: 0 / 2
+warning:  - Result for 'body assertion' VC for universalLaw @3:16:
+warning: n * n >= 10
+03_times.scala:3:16: warning:  => INVALID
+                   assert(n * n >= 10)
+                          ^^^^^^^^^^^
+warning: Found counter-example:
+warning:   n: Int -> 0
+Verified: 0 / 2
+warning:  - Result for 'body assertion: Multiplication overflow' VC for universalLaw @3:16:
+warning: n == 0 || n == (n * n) / n
+03_times.scala:3:16: warning:  => INVALID
+                   assert(n * n >= 10)
+                          ^^^^^
+warning: Found counter-example:
+warning:   n: Int -> -46341
+Verified: 0 / 2
+  
+ stainless summary 
+                                                                                   
+03_times.scala:3:16:   universalLaw  body assertion                           invalid  UO:smt-z3  1.8  
+03_times.scala:3:16:   universalLaw  body assertion: Multiplication overflow  invalid  UO:smt-z3  56.3 
+........................................................................................................
+total: 2    valid: 0    (0 from cache) invalid: 2    unknown: 0    time:    58.1                       
+
+Shutting down executor service.
