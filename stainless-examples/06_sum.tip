@@ -1,0 +1,15 @@
+(define-fun-rec sumToTen ((n Int)) Int
+    (ite (>= n 4) 4 (+ (sumToTen (+ n 1)) n)))
+
+(declare-fun k () Int)
+(declare-fun l () Int)
+
+(assert (= l (sumToTen k)))
+
+(assert (>= k 0))
+(assert (>= l 4))
+(assert (<= l 7))
+;(minimize k)
+
+(check-sat)
+;(get-model)
