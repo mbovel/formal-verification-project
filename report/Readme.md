@@ -1,7 +1,7 @@
 # Paper Review
 
-- Source: [`report.md`](review.md)
-- Build: [`report.pdf`](review.pdf)
+- Source: [`report.md`](report.md)
+- Build: [`report.pdf`](report.pdf)
 
 ## Dependencies
 
