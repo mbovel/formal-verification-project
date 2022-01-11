@@ -156,10 +156,18 @@ of its own type, or an ADT containing a field of another ADT type itself contain
 [Quick benchmarks and a nice boxplot with our examples comparing run times between
 (--solvers=smt-z3-min and --solvers=smt-z3-opt)].
 
+[TODO add a sentence to the conclusion with a summary of the perf]
+
 # Conclusion
 
-[Problems?]
+In summary, we have successfully implemented a prototype of minimization in Inox, and are on the way to getting it merged to mainline so that
+any user of Inox or Stainless can use it by changing command-line arguments.
 
-[Next steps?]
+We encountered two key problems, one at the design level and one at the implementation level.
+At the design level, the notion of "minimization" is not as well-defined as one would think in the context of real code: one has to make choices
+as to what to favor, such as fewer fields vs. smaller types in bits.
+At the implementation level, one cannot create a giant "sum of all variables" expressions as the variables may be of different kinds, and the types
+may be recursively defined, requiring the solver to stop at some point that must be explicitly chosen.
 
-[Summary]
+The next step is for our pull request to be merged, and then perhaps improved to support more scenarios or more complex minimization policies;
+this is no longer a pure formal methods problem but also enters human-computer interactions territory as to what users of verification tools prefer.
