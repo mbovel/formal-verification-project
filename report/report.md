@@ -68,29 +68,54 @@ communique with an SMT solver]
 
 # Implementation
 
-[Inox supports multiple backends. Z3 with text or native. On top of that,
-optimizing versions.]
+Inox already has the notion of a _solver_ interface that takes in constraints and outputs a satisfying assignment or UNSAT.
+The existing solvers include Z3, CVC4, and Princess; furthermore, Z3 can be used either in "native" mode, talking to Z3
+via its own API, or in "SMT-LIB" mode, talking to Z3 via standard SMT-LIB text queries.
+The advantage of the SMT-LIB mode is that the same queries can be sent to any solver that supports SMT-LIB, modulo solver
+specificities that should not exist in theory but happen in practice.
 
-[Optimizer did not support maximize and minimize. We first added support for
-that (first PR).]
+Inox already had a `Z3Optimizer` solver which supported a form of weighted Max-SMT: instead of merely asserting a constraint,
+one could give the constraint a weight and the optimizer would try to maximize the sum of weights of satisfied constraints.
+However, this does not work for our purposes, as we wish to maximize _variables_, not _constraint weights_.
 
-[Then we added a Minimizer on tp of Z3 text (second PR).]
+We added support for maximization and minimization to Inox's internal _optimizer_ interface in pull request [#171](https://github.com/epfl-lara/inox/pull/171),
+which was merged.
+
+Using this support, we then added a `Z3Minimizer` solver in pull request [#176](https://github.com/epfl-lara/inox/pull/176),
+which is currently open, that implements the minimization described in this report.
+This solver can be used as `smt-z3-min`, for instance using Stainless's `--solvers=` argument.
+It will automatically ask Z3 to minimize the variables in all queries, using the techniques we describe below.
+
 
 ## Numbers
 
-[What does it mean to minimize a number? Minimize absolute value.]
+Before discussing the minimization of numbers, we note that we use _integers_ to refer to the arithmetic integers,
+which are unbounded and represented in Scala as `BigInt`s, not to Scala `Int`s and friends, which are _bit vectors_
+of fixed size. This is important in the context of SMT, as the two cannot mix without explicit conversions, and
+bit vectors are (on their own) decidable while integers are not always decidable (e.g., non-linear integer arithmetic is undecidable).
 
-[Different types of numbers: bit vectors and integers.]
+_Minimizing_ a number has an intuitive connotation of "making it smaller", but we must be more formal.
+Asking Z3 to make an integer as small as possible is pointless, since integers are not bounded, and the result will
+thus be some very large negative integer.
+Instead, we minimize _the absolute value_, i.e., to minimize `x` we minimize `if (x >= 0) x else -x`.
 
-[We generate one expression to minimize per number]
+The naïve approach of generating one big addition for all variables does not work because variables are of different sorts.
+One cannot add bit vectors of different sizes together without an explicit conversion, which would require a first pass over
+all variables to first check what the largest bit vector is.
+Even if we extended the smaller bit vectors to make them all the same size, we would need to convert all bit vectors to integers
+if any variable is an integer, an operation that Z3 supports but Inox currently does not expose (issue [#108](https://github.com/epfl-lara/inox/issues/108)).
+Even if we added that support, the resulting query would be suboptimal since we would generate a large query with lots of explicit conversions
+which would hinder performance (see Z3 issue [#1481](https://github.com/Z3Prover/z3/issues/1481)).
 
+Instead, we generate one minimizing query per number.
+We could in theory also generate minimization queries for other "primitive" types such as Booleans, but we did not see a need to do so.
 
-Example:
+In practice, for the given Scala code:
 ```scala
 def add(x: Int, y: Int): Int = { x + y } ensuring(res => res >= 10)
 ```
 
-Generated constraints:
+An SMT-LIB query similar to this will be generated:
 ```lisp
 ...
 (declare-fun x!110 () (_ BitVec 32))
@@ -100,7 +125,7 @@ Generated constraints:
 ...
 ```
 
-Result:
+The result will then be `0` and `0`, which are not just satisfactory assignments but also minimal.
 
 ## ADT
 
