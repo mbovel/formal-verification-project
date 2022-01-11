@@ -129,7 +129,19 @@ The result will then be `0` and `0`, which are not just satisfactory assignments
 
 ## ADT
 
-[Generate one constraint per field recursively.]
+ADTs present two challenges for minimization: there is no formal notion of "minimum" for any ADT, and ADTs can be recursive.
+
+One can design strategies for simple cases, such as preferring constructors with fewer parameters or constructors whose
+parameters are themselves smaller, but the intersection of these goals has no obvious solution.
+For instance, given an ADT with one constructor `A` taking one 64-bit vector and one constructor `B` taking two 16-bit vectors,
+which constructor should be preferred for a counter-example?
+We decided to prefer fewer parameters always.
+
+Handling recursive ADTs must be done explicitly, to ensure the code generating the query terminates instead of generating the equivalent of
+"make the first item in the list minimal, and the second item in the list minimal, and ..." _ad infinitum_.
+However, this naturally conflicts with the goal of minimizing all items.
+We chose to not generate any minimization queries once we reach the first recursive definition in a path, such as an ADT containing a field
+of its own type, or an ADT containing a field of another ADT type itself containing a field of the first ADT type.
 
 [Example]
 
