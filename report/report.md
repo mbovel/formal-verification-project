@@ -213,7 +213,8 @@ One can design strategies for simple cases, such as preferring constructors with
 parameters are themselves smaller, but the intersection of these goals has no obvious solution.
 For instance, given an ADT with one constructor `A` taking one 64-bit vector and one constructor `B` taking two 16-bit vectors,
 which constructor should be preferred for a counter-example?
-We decided to prefer fewer parameters always.
+We decided to prefer fewer parameters, and to give a "size" to each parameter types such that BVs are smaller than integers which are
+themselves smaller than ADTs.
 
 Handling recursive ADTs must be done explicitly, to ensure the code generating the query terminates instead of generating the equivalent of
 "make the first item in the list minimal, and the second item in the list minimal, and ..." _ad infinitum_.
@@ -221,7 +222,46 @@ However, this naturally conflicts with the goal of minimizing all items.
 We chose to not generate any minimization queries once we reach the first recursive definition in a path, such as an ADT containing a field
 of its own type, or an ADT containing a field of another ADT type itself containing a field of the first ADT type.
 
-[Example]
+Here is an example of a TIP query for a list whose "minimum" and "maximum" should be different, while having a "minimum" between 0 and 1000,
+given a simple definition of min/max:
+
+```lisp
+(declare-datatypes () (
+    (MyList
+        (MyNil)
+        (MyCons (x Int) (xs MyList))
+    )
+))
+
+
+(define-fun-rec myMin ((t MyList)) Int
+    (match t
+        (case MyNil 1000)
+        (case (MyCons x xs)
+            (let ((xsMin (myMin xs)))
+            (ite (<= x xsMin) x xsMin))
+        )
+    )
+)
+
+(define-fun-rec myMax ((t MyList)) Int
+    (match t
+        (case MyNil (- 1))
+        (case (MyCons x xs)
+            (let ((xsMax (myMax xs)))
+            (ite (>= x xsMax) x xsMax))
+        )
+    )
+)
+
+(declare-fun aList () MyList)
+
+(assert (>= (myMin aList) 0))
+(assert (<= (myMin aList) 999))
+(assert (not (= (myMin aList) (myMax aList))))
+```
+
+With the default Z3 solver, Inox returns `MyCons(39, MyCons(38, MyNil()))`, but with our minimizer, we get `MyCons(0, MyCons(1, MyNil()))` instead.
 
 ## Recursion
 
@@ -251,6 +291,7 @@ may be recursively defined, requiring the solver to stop at some point that must
 
 The next step is for our pull request to be merged, and then perhaps improved to support more scenarios or more complex minimization policies;
 this is no longer a pure formal methods problem but also enters human-computer interactions territory as to what users of verification tools prefer.
+For instance, at what point does an integer become "bigger" than an ADT? Is it better to have two 15-bit values or one 32-bit value?
 
 Our code is in the pull requests [#171](https://github.com/epfl-lara/inox/pull/171) (merged) and [#176](https://github.com/epfl-lara/inox/pull/176) (open) for Inox.
 We also have a toy implementation of DPLL in Scala at <https://github.com/mbovel/formal-verification-project/tree/main/paper-test-implementation>.
