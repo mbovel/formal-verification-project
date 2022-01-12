@@ -2,13 +2,13 @@ warning: Parallelism is disabled.
 Starting verification...
 Verified: 0 / 0Verified: 0 / 1
 warning:  - Result for 'postcondition' VC for multCommutative @27:5:
-warning: mult(a, b) == mult(b, a)
+warning: mult(z1, z2) == mult(z2, z1)
 examples/04_adt.scala:27:5: warning:  => INVALID
-               def multCommutative(a: Complex, b: Complex) = {mult(a, b) == mult(b, a)}.holds
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               def multCommutative(z1: Complex, z2: Complex) = {mult(z1, z2) == mult(z2, z1)}.holds
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 warning: Found counter-example:
-warning:   b: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
-  a: Complex -> BoxedComplex(BoxedInt(BigInt("1")), BoxedInt(BigInt("0")))
+warning:   z2: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
+  z1: Complex -> BoxedComplex(BoxedInt(BigInt("1")), BoxedInt(BigInt("0")))
 Verified: 0 / 1Verified: 0 / 1Verified: 0 / 1Verified: 0 / 2Verified: 1 / 2Verified: 1 / 3Verified: 2 / 3Verified: 2 / 3
   
  stainless summary 
@@ -17,6 +17,6 @@ examples/04_adt.scala:15:48:   getImaginaryPart  body assertion: match exhaustiv
 examples/04_adt.scala:10:43:   getRealPart       body assertion: match exhaustiveness  valid    UO:smt-z3  0.0 
 examples/04_adt.scala:27:5:    multCommutative   postcondition                         invalid  UO:smt-z3  0.3 
 ................................................................................................................
-total: 3    valid: 2    (0 from cache) invalid: 1    unknown: 0    time:     0.4                               
+total: 3    valid: 2    (0 from cache) invalid: 1    unknown: 0    time:     0.3                               
 
 Shutting down executor service.
