@@ -14,7 +14,7 @@ with open(RESULTS, "w") as myfile:
 
 for src in [
     "../examples/01_addition_ge10.scala",
-    "../examples/02_subtraction_commutativity.scala"
+    "../examples/02_subtraction_commutativity.scala",
     "../examples/04_adt.scala"
 ]:
     for i in range(0,6):

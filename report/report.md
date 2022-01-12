@@ -292,7 +292,7 @@ to do so. ] format:
             (ite (<= x xsMin) x xsMin)))))
 ```
 
-Note that we use `1000` as a simple maximum value.
+Note that we use `1000` as a simplified maximum value guard.
 
 Given a `myMax` function defined in the same way as `myMin` (see linked repository for full
 example snippets), we can query for a list where the minimum and the maximum are
@@ -307,9 +307,10 @@ different using:
 
 In such a case, Inox will first try to find a model where `aList` is `MyNil`,
 then instantiate the recursive function once and try models where `aList` has
-length 1 and so on. In this case, in will stop at length 2 and output
-`MyCons(39, MyCons(38, MyNil()))` with the default Z3 solver, and `MyCons(0,
-MyCons(1, MyNil()))` with the new minimizing solver.
+length 1 and so on. In this case, in will stop at length 2.
+
+The original solver outputs `MyCons(39, MyCons(38, MyNil()))`, while the
+minimizing solver outputs `MyCons(0, MyCons(1, MyNil()))`.
 
 Note that in general, this will minimize the depth of the unrolling and not the
 size of the argument. A general procedure for optimizing the argument would not
