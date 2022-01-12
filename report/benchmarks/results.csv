@@ -1,0 +1,5 @@
+name,solver,time
+01_addition_ge10,smt-z3-opt,9.92
+01_addition_ge10,smt-z3-min,9.03
+01_addition_ge10,smt-z3-opt,8.77
+01_addition_ge10,smt-z3-min,9.74
