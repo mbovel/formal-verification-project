@@ -1,0 +1,10 @@
+sat
+(objectives
+ ((+ x y) 3)
+)
+(
+  (define-fun x () Int
+    2)
+  (define-fun y () Int
+    1)
+)

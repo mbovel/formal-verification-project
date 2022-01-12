@@ -1,0 +1,40 @@
+warning: Parallelism is disabled.
+Starting verification...
+Verified: 0 / 0Verified: 0 / 3
+warning:  - Result for 'body assertion: Subtraction overflow' VC for subtract @2:37:
+warning: (x & -2147483648) == (y & -2147483648) || (x & -2147483648) == (x - y & -2147483648)
+examples/02_subtraction_commutativity.scala:2:37: warning:  => INVALID
+               def subtract(x: Int, y: Int) = {x - y}.ensuring(_ == y - x)
+                                               ^^^^^
+warning: Found counter-example:
+warning:   y: Int -> -2147483648
+  x: Int -> 0
+Verified: 0 / 3
+warning:  - Result for 'body assertion: Subtraction overflow' VC for subtract @2:58:
+warning: (x & -2147483648) != (y & -2147483648) && (x & -2147483648) != (x - y & -2147483648) || (y & -2147483648) == (x & -2147483648) || (y & -2147483648) == (y - x & -2147483648)
+examples/02_subtraction_commutativity.scala:2:58: warning:  => INVALID
+               def subtract(x: Int, y: Int) = {x - y}.ensuring(_ == y - x)
+                                                                    ^^^^^
+warning: Found counter-example:
+warning:   y: Int -> 2147483647
+  x: Int -> -1
+Verified: 0 / 3
+warning:  - Result for 'postcondition' VC for subtract @2:5:
+warning: (x & -2147483648) != (y & -2147483648) && (x & -2147483648) != (x - y & -2147483648) || x - y == y - x
+examples/02_subtraction_commutativity.scala:2:5: warning:  => INVALID
+               def subtract(x: Int, y: Int) = {x - y}.ensuring(_ == y - x)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: Found counter-example:
+warning:   y: Int -> 1
+  x: Int -> 0
+Verified: 0 / 3
+  
+ stainless summary 
+                                                                                                        
+examples/02_subtraction_commutativity.scala:2:5:    subtract  postcondition                         invalid  UO:smt-z3  0.0 
+examples/02_subtraction_commutativity.scala:2:37:   subtract  body assertion: Subtraction overflow  invalid  UO:smt-z3  0.2 
+examples/02_subtraction_commutativity.scala:2:58:   subtract  body assertion: Subtraction overflow  invalid  UO:smt-z3  0.1 
+.............................................................................................................................
+total: 3    valid: 0    (0 from cache) invalid: 3    unknown: 0    time:     0.3                                            
+
+Shutting down executor service.

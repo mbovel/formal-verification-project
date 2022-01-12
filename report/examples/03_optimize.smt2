@@ -1,0 +1,8 @@
+(declare-fun x () Int)
+(declare-fun y () Int)
+(assert (<= x 2))
+(assert (>= (- x y) 1))
+(maximize (+ x y))
+(check-sat)
+(get-objectives)
+(get-model)

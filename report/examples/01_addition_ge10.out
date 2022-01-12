@@ -1,0 +1,30 @@
+warning: Parallelism is disabled.
+Starting verification...
+Verified: 0 / 0Verified: 0 / 2
+warning:  - Result for 'body assertion: Addition overflow' VC for add @2:38:
+warning: (x & -2147483648) != (y & -2147483648) || (x & -2147483648) == (x + y & -2147483648)
+examples/01_addition_ge10.scala:2:38: warning:  => INVALID
+               def add(x: Int, y: Int): Int = { x + y } ensuring(res => res >= 10)
+                                                ^^^^^
+warning: Found counter-example:
+warning:   y: Int -> -2147482625
+  x: Int -> -2147482625
+Verified: 0 / 2
+warning:  - Result for 'postcondition' VC for add @2:5:
+warning: (x & -2147483648) == (y & -2147483648) && (x & -2147483648) != (x + y & -2147483648) || x + y >= 10
+examples/01_addition_ge10.scala:2:5: warning:  => INVALID
+               def add(x: Int, y: Int): Int = { x + y } ensuring(res => res >= 10)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: Found counter-example:
+warning:   y: Int -> 2146959355
+  x: Int -> -2146959347
+Verified: 0 / 2
+  
+ stainless summary 
+                                                                                    
+examples/01_addition_ge10.scala:2:5:    add  postcondition                      invalid  UO:smt-z3  0.0 
+examples/01_addition_ge10.scala:2:38:   add  body assertion: Addition overflow  invalid  UO:smt-z3  0.2 
+.........................................................................................................
+total: 2    valid: 0    (0 from cache) invalid: 2    unknown: 0    time:     0.2                        
+
+Shutting down executor service.

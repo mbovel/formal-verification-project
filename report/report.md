@@ -32,39 +32,117 @@ numbersections: true
 
 \Begin{abstract}
 
-[Stainless](https://stainless.epfl.ch) is a tool for verifying [Scala](https://www.scala-lang.org) programs. It can prove that some
-invariants inside a function hold for all possible inputs, or show counter-examples
-when they exist.
+[Stainless](https://stainless.epfl.ch) is a tool for verifying
+[Scala](https://www.scala-lang.org) programs. It can prove that some invariants
+inside a function hold for all possible arguments, or show counter-examples when
+they exist.
 
-These synthesized counter-examples are unfortunately often
-suboptimal in terms of human-readability. For example, when asked to provide two
-Java integers whose sum is smaller than 10, Stainless outputs "2'146'959'355 and
--2'146'959'347". While correct, the answer "0 and 0" would probably look more
-intuitive to most human brains.
+These synthesized counter-examples are unfortunately often suboptimal in terms
+of human-readability. For example, when asked to provide two Java integers whose
+sum is smaller than 10, Stainless outputs "2'146'959'355 and -2'146'959'347".
+While correct, the answer "0 and 0" would probably look more intuitive to most
+human brains.
 
-We address this problem by extending [Inox](https://github.com/epfl-lara/inox)---the engine behind Stainless---to
+We address this problem by extending
+[Inox](https://github.com/epfl-lara/inox)---the engine behind Stainless---to
 make it able to find models that are not only valid, but also minimal with
-respect to some sizing constraints. To this end, we leverage the optimizing
+respect to some notion of size. To this end, we leverage the optimizing
 capabilities of the [Z3](https://github.com/Z3Prover/z3) backend.
 
 \End{abstract}
 
 # Introduction
 
-[Stainless translates to Pure Scala. Then Inox converts to constraints and
-communique with an SMT solver]
+Many complementary techniques exist to make that programs work as expected.
+Among which are _type systems_ that give guarantees about the possible set of
+states in which a program can be. _Testing_ is also used to check that programs
+are correct for _some inputs_. However, to make sure that a piece of code
+behaves as expected _for all possible inputs_, one needs to go further.
 
-[Brief recall of SMT, DPLL.]
+One way is to write proofs manually or with the help of a proof assistant, but
+this is time-consuming and requires a significant mathematical background.
+Another solution is to automatically convert a program to a set of constraints
+and use an _SMT solver_ to prove whereas these constraints are satisfiable or
+not. Stainless is such a tool.
 
-[Example 1: Scala Code, generated constraints, model found]
+It allows developers to automatically verify functions written in a subset of
+Scala by verifying the validity of _contracts_ embedded in the code, for example
+in the form of pre- or post-conditions. In the following example, the function a
+`intMinus` has a post-condition `.ensuring(_ == y - x)` aiming to check if Java
+integers subtraction is commutative:
 
-[Brief recall of Optimizing SMT. Soft constraints, minimize, maximize.] [@paper]
+```scala
+def intMinus(x: Int, y: Int) = {x - y}.ensuring(_ == y - x)
+```
 
-[Example 2: Optimization with Z3]
+To verify this program, Stainless applies a succession of semantic-preserving
+transformations until it fits into the pure higher-order functional language
+fragment supported by Inox. Inox in turns transforms this fragment into
+constraints to are fed to an SMT solver. Because the goal is to find a
+counter-example to a property $p$, the SMT solver is queried for a model
+satisfying $\lnot p$. The previous example is encoded as:
 
-[Our work is to extend Inox so that it generates these minimize statements.]
+```plain
+(declare-fun x () (_ BitVec 32))
+(declare-fun y () (_ BitVec 32))
+(assert (and
+    (or
+        (= (bvand x #b100...0) (bvand y #b100...0))
+        (= (bvand x #b100...0) (bvand (bvsub x y) #b100...0))
+    )
+    (not (= (bvsub x y) (bvsub y x)))))
+(check-sat)
+```
 
-[A note about multiple objectives.]
+This defines two vectors of 32 bits `x` and `y` and a constraint $\lnot ((x - y)
+= (y - x))$ (right hand side of the logical `and`). The left hand side of the
+`and` constraints the model further so that $x - y$ does not overflow, because
+Stainless checks for overflows separately. It is of course possible to find such
+a model, therefore Stainless outputs a counter-example:
+
+```plain
+Found counter-example:
+    y: Int -> -107401216
+    x: Int -> -270336
+```
+
+While this example indeed violates our post-condition as $-107401216 - -270336
+\ne -270336 - -107401216$, it is needlessly verbose and unintuitive to human
+eyes which would probably prefer something like $x = 0$ and $y = 1$. In other
+words, we are interested not only in a valid counter-example, but we also aim
+for a _minimal_ counter-example.
+
+This is an _optimization_ problem which is stronger than the _satisfiability_
+problems traditionally handled by SMT solvers. Nevertheless, it has been shown
+in [@paper] that such solvers can be extended to efficiently deal with SMT
+problems where models $M$ are sought such that a given cost function $f(M)$ is
+minimized. We give a detailed summary of this paper in the annex background
+report. We also provide a minimal example of the Optimizing DPLL modulo theories
+written in Scala.
+
+Z3---one of the SMT solvers that Inox can use---implements these optimization
+capabilities for linear arithmetic objectives. For example, the following query
+asks Z3 to optimize $x + y$ given the constraints $x \leq 2$ and $x - y \geq 1$.
+
+
+```plain
+(declare-fun x () Int)
+(declare-fun y () Int)
+(assert (<= x 2))
+(assert (>= (- x y) 1))
+(maximize (+ x y))
+```
+
+For this query, Z3 outputs the model $x = 2$ and $y = 1$, which is indeed
+optimal with respect to the given constraints.
+
+Our project consisted in making this optimization capabilities accessible from
+Inox, and then using them to create a solver that automatically minimize the
+_size_ of all free variables. In the following section, we detail how we
+implemented this in Inox, how we defined sizing constraints for different
+variable types. We then compare the new minimizing solver performance 
+to the existing solvers in the Benchmarks section, before summarizing and
+discussing possible enhancements and steps in the Conclusion. 
 
 # Implementation
 
