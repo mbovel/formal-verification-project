@@ -250,7 +250,7 @@ With the default Z3 solver, Inox returns:
     z2: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
 ```
 
-For the parameter `z1`, our solver adds the following constraints: [TODO: simplify]
+For the parameter `z1`, our solver adds the following constraints:
 
 ```plain
 (minimize (ite ((_ is UnboxedComp) z1) #b...001010 #b...010100)) ; favors UnboxedComp
@@ -313,19 +313,31 @@ The original solver outputs `MyCons(39, MyCons(38, MyNil()))`, while the
 minimizing solver outputs `MyCons(0, MyCons(1, MyNil()))`.
 
 Note that in general, this will minimize the depth of the unrolling and not the
-size of the argument. A general procedure for optimizing the argument would not
-be decidable as the number of such possible models is unbounded.
+size of the argument. This is expected as a general procedure for optimizing the
+result of a recursive function would not be decidable because the number of
+possibilities is unbounded. For the same reason, Z3 will generally also not be
+able to optimize goals involving quantifiers (see Z3 issue
+[#1382](https://github.com/Z3Prover/z3/issues/1382)).
 
 # Benchmarks
 
-[Quick benchmarks and a nice boxplot with our examples comparing run times between
-(--solvers=smt-z3-min and --solvers=smt-z3-opt)].
+While minimal models are easier to read, it is a legitimate question to ask if
+it implies a performance hit, and if so if it is worth it. Therefore, we
+evaluated the performance of the new `smt-z3-min` solver on the 3 Stainless
+input examples presented in this report. The graph below summarize the
+performance `smt-z3-min` relatively to the `smt-z3-opt`:
 
 ![](benchmarks/results.png)
 
-[TODO mention that there's no overhead for UNSAT VCs, which is the happy case when the code under verif is correct]
+Each run example code has been run 6 times and each individual run is
+represented one point on the graph. The first example suffers
+from a 1% performance hit, the second suffers from no observable performance
+hit, and the third one is 5% slower on average with the minimizing solver.
 
-[TODO add a sentence to the conclusion with a summary of the perf]
+Therefore, there _is_ a minimal performance overhead induced by model
+minimization, but we believe that is stays within a very reasonable range. Also,
+note that this overhead should be induced only if a counter-example is found,
+but not otherwise.
 
 # Conclusion
 
