@@ -1,86 +1,0 @@
-warning: Parallelism is disabled.
-Starting verification...
-Verified: 0 / 0Verified: 0 / 1
-warning:  - Result for 'postcondition' VC for id4 @14:5:
-warning: x >= 0
-01_id.scala:14:5: warning:  => INVALID
-               def id4(x: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> -1
-Verified: 0 / 1Verified: 0 / 2
-warning:  - Result for 'postcondition' VC for id @2:5:
-warning: x < 10
-01_id.scala:2:5: warning:  => INVALID
-               def id(x: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> 10
-Verified: 0 / 2Verified: 0 / 3
-warning:  - Result for 'postcondition' VC for idBound4 @30:5:
-warning: x >= y
-01_id.scala:30:5: warning:  => INVALID
-               def idBound4(x: Int, y: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   y: Int -> -2147483647
-  x: Int -> -2147483648
-Verified: 0 / 3Verified: 0 / 4
-warning:  - Result for 'postcondition' VC for id2 @6:5:
-warning: x <= 10
-01_id.scala:6:5: warning:  => INVALID
-               def id2(x: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> 11
-Verified: 0 / 4Verified: 0 / 5
-warning:  - Result for 'postcondition' VC for idBound2 @22:5:
-warning: x <= y
-01_id.scala:22:5: warning:  => INVALID
-               def idBound2(x: Int, y: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> -2147483647
-  y: Int -> -2147483648
-Verified: 0 / 5Verified: 0 / 6
-warning:  - Result for 'postcondition' VC for idBound3 @26:5:
-warning: x > y
-01_id.scala:26:5: warning:  => INVALID
-               def idBound3(x: Int, y: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> -2147483648
-  y: Int -> -2147483648
-Verified: 0 / 6Verified: 0 / 7
-warning:  - Result for 'postcondition' VC for id3 @10:5:
-warning: x > 0
-01_id.scala:10:5: warning:  => INVALID
-               def id3(x: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> 0
-Verified: 0 / 7Verified: 0 / 8
-warning:  - Result for 'postcondition' VC for idBound @18:5:
-warning: x < y
-01_id.scala:18:5: warning:  => INVALID
-               def idBound(x: Int, y: Int): Int = {
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-warning: Found counter-example:
-warning:   x: Int -> -2147483648
-  y: Int -> -2147483648
-Verified: 0 / 8
-  
- stainless summary 
-                                                                       
-01_id.scala:2:5:           id           postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:6:5:           id2          postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:10:5:          id3          postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:14:5:          id4          postcondition       invalid     UO:smt-z3     0.2  
-01_id.scala:18:5:          idBound      postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:22:5:          idBound2     postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:26:5:          idBound3     postcondition       invalid     UO:smt-z3     0.0  
-01_id.scala:30:5:          idBound4     postcondition       invalid     UO:smt-z3     0.0  
-............................................................................................
-total: 8    valid: 0    (0 from cache) invalid: 8    unknown: 0    time:     0.4           
-
-Shutting down executor service.

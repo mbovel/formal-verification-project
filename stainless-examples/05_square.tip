@@ -1,8 +1,0 @@
-
-(declare-fun k () Int)
-
-(define-fun l () Int (* (- k 4) k))
-
-(assert (>= k (- 2)))
-
-(check-sat)

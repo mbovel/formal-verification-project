@@ -1,9 +1,0 @@
-(define-fun-rec fact ((n Int)) Int
-    (ite (= n 0) 1 (* (fact (- n 1)) n)))
-
-(declare-fun k () Int)
-
-(assert (>= (fact k) 15))
-
-
-(check-sat)
