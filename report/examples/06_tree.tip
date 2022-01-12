@@ -1,0 +1,27 @@
+(declare-datatypes () (
+    (Tree
+        (Empty)
+        (Node (value Int) (left Tree) (right Tree))
+    )
+))
+
+(define-fun-rec height ((t Tree)) Int
+    (match t 
+        (case Empty 0)
+        (case (Node value left right)
+            (let (
+                (rightHeight (height right))
+                (leftHeight (height left))
+            )
+                (+ 1 (ite (>= leftHeight rightHeight) leftHeight rightHeight))
+            )
+        )
+    )
+)
+
+(declare-fun aTree () Tree)
+
+(assert (= (height aTree) 2))
+
+
+(check-sat)

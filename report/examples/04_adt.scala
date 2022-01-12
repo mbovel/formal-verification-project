@@ -1,7 +1,6 @@
 import stainless.lang._
 
 object ADT {
-
     final case class BoxedInt(value: BigInt)
 
     sealed trait Complex
