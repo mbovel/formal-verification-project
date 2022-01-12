@@ -1,0 +1,6 @@
+[[34m  Info  [0m] examples/05_list.tip => SAT
+[[34m  Info  [0m]   aList -> if (true) {
+[[34m  Info  [0m]     MyCons(39, MyCons(38, MyNil()))
+[[34m  Info  [0m]   } else {
+[[34m  Info  [0m]     choose((res: MyList) => true)
+[[34m  Info  [0m]   }
