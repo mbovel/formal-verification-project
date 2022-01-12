@@ -14,7 +14,7 @@ This repository contains:
 - The slides for oral presentation in the 
   [`presentation`](./presentation) folder.
 - The project report in the
-  [`report`](./presentation) folder.
+  [`report`](./report) folder.
 
 ## Abstract
 
