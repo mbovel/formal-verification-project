@@ -216,63 +216,105 @@ which constructor should be preferred for a counter-example?
 We decided to prefer fewer parameters, and to give a "size" to each parameter types such that BVs are smaller than integers which are
 themselves smaller than ADTs.
 
-Handling recursive ADTs must be done explicitly, to ensure the code generating the query terminates instead of generating the equivalent of
-"make the first item in the list minimal, and the second item in the list minimal, and ..." _ad infinitum_.
-However, this naturally conflicts with the goal of minimizing all items.
-We chose to not generate any minimization queries once we reach the first recursive definition in a path, such as an ADT containing a field
-of its own type, or an ADT containing a field of another ADT type itself containing a field of the first ADT type.
+Here is a simple example of two non-recursive ADTs representing boxed
+big integers and complex numbers:
 
-Here is an example of a TIP query for a list whose "minimum" and "maximum" should be different, while having a "minimum" between 0 and 1000,
-given a simple definition of min/max:
+```plain
+final case class BoxedInt(value: BigInt)
+sealed trait Comp
+final case class BoxedComp(a: BoxedInt, b: BoxedInt) extends Comp
+final case class UnboxedComp(a: BigInt, b: BigInt) extends Comp
+```
 
-```lisp
+Given `re` and `im` two accessors functions respectively returning the `BigInt`
+value of the `a` and `b` field and the above definitions, we define a buggy
+function `mult` multiplying two complex numbers in the following way and spot
+the bug by checking that our operation in commutative:
+
+```plain
+def mult(a: Comp, b: Comp): Comp =
+    UnboxedComp(re(a) * re(b) - im(a) * im(b),
+                re(a) * im(b) + im(a) * re(a))
+def multCommutative(a: Comp, b: Comp) =
+    { mult(a, b) == mult(b, a) }.holds
+```
+
+With the default Z3 solver, Inox returns:
+
+```plain
+    a: Complex -> BoxedComplex(BoxedInt(BigInt("1")), BoxedInt(BigInt("0")))
+    b: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
+```
+
+For the variable `a`, our solver adds the following constraints: [TODO: simplify]
+
+```plain
+(minimize (ite ((_ is UnboxedComplex!2) b!21) #b0000000000000000000000000000000000000000000000000000000000001010 #b0000000000000000000000000000000000000000000000000000000000010100))
+(minimize (ite ((_ is UnboxedComplex!2) b!21) (ite (>= (x!127 b!21) 0) (x!127 b!21) (- (x!127 b!21))) 0))
+(minimize (ite ((_ is UnboxedComplex!2) b!21) (ite (>= (y!32 b!21) 0) (y!32 b!21) (- (y!32 b!21))) 0))
+```
+
+Which allow to return a smaller counter example:
+
+```plain
+    a: Complex -> UnboxedComplex(BigInt("0"), BigInt("0"))
+    b: Complex -> UnboxedComplex(BigInt("-1"), BigInt("-1"))
+```
+
+## Recursion
+
+Inox supports recursive functions and ADTs by _unrolling_ them and querying the
+SMT solver incrementally for increasing depths.
+
+For example, one can define a recursive `MyList` ADT and recursive a recursive
+function `myMin` as follows in the
+[SMT2](https://smtlib.cs.uiowa.edu/language.shtml) or
+[TIP](https://tip-org.github.io)^[TIP is a superset of SMT2. This example does
+not use any extra feature from TIP and can therefore be run both by Inox (`inox
+--solvers=smt-z3-min example.tip`) and by Z3 (`z3 example.tip`). Note that Inox
+automatically outputs a model, while Z3 needs an explicit `(get-model)` commands
+to do so. ] format:
+
+```plain
 (declare-datatypes () (
     (MyList
         (MyNil)
-        (MyCons (x Int) (xs MyList))
-    )
-))
-
-
+        (MyCons (x Int) (xs MyList)))))
 (define-fun-rec myMin ((t MyList)) Int
-    (match t
+    (match t 
         (case MyNil 1000)
         (case (MyCons x xs)
             (let ((xsMin (myMin xs)))
-            (ite (<= x xsMin) x xsMin))
-        )
-    )
-)
+            (ite (<= x xsMin) x xsMin)))))
+```
 
-(define-fun-rec myMax ((t MyList)) Int
-    (match t
-        (case MyNil (- 1))
-        (case (MyCons x xs)
-            (let ((xsMax (myMax xs)))
-            (ite (>= x xsMax) x xsMax))
-        )
-    )
-)
+Given a `myMax` function defined in the same way as `myMin` (see appendix for full
+example snippets), we can query for a list where the minimum and the maximum are
+different using:
 
+```plain
 (declare-fun aList () MyList)
-
 (assert (>= (myMin aList) 0))
 (assert (<= (myMin aList) 999))
 (assert (not (= (myMin aList) (myMax aList))))
 ```
 
-With the default Z3 solver, Inox returns `MyCons(39, MyCons(38, MyNil()))`, but with our minimizer, we get `MyCons(0, MyCons(1, MyNil()))` instead.
+In such a case, Inox will first try to find a model where `aList` is `MyNil`,
+then instantiate the recursive function once and try models where `aList` has
+length 1 and so on. In this case, in will stop at length 2 and output
+`MyCons(39, MyCons(38, MyNil()))` with the default Z3 solver, and `MyCons(0,
+MyCons(1, MyNil()))` with the new minimizing solver.
 
-## Recursion
-
-[Recursive functions and unrolling]
-
-[Loops]
+Note that in general, this will minimize the depth of the unrolling and not the
+size of the argument. A general procedure for optimizing the argument would not
+be decidable as the number of such possible models is unbounded.
 
 # Benchmarks
 
 [Quick benchmarks and a nice boxplot with our examples comparing run times between
 (--solvers=smt-z3-min and --solvers=smt-z3-opt)].
+
+![](benchmarks/results.png)
 
 [TODO mention that there's no overhead for UNSAT VCs, which is the happy case when the code under verif is correct]
 

@@ -6,7 +6,7 @@ import plotly.express as px
 
 
 df = pd.read_csv("results.csv")
-baseline_mean = df[df["solver"] == "smt-z3-opt"].groupby("name")["time"].mean().to_dict()
+baseline_mean = df[df["solver"] == "smt-z3-opt"].groupby("name")["time"].median().to_dict()
 
 def difference(row):
     relative_time = row["time"] / baseline_mean[row["name"]]
@@ -22,4 +22,3 @@ fig.update_layout({
 })
 
 fig.write_html("results.html")
-fig.write_img("results.png")

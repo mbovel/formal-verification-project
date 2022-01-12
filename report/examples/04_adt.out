@@ -1,9 +1,9 @@
 warning: Parallelism is disabled.
 Starting verification...
 Verified: 0 / 0Verified: 0 / 1
-warning:  - Result for 'postcondition' VC for multCommutative @28:5:
+warning:  - Result for 'postcondition' VC for multCommutative @27:5:
 warning: mult(a, b) == mult(b, a)
-examples/04_adt.scala:28:5: warning:  => INVALID
+examples/04_adt.scala:27:5: warning:  => INVALID
                def multCommutative(a: Complex, b: Complex) = {mult(a, b) == mult(b, a)}.holds
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 warning: Found counter-example:
@@ -13,10 +13,10 @@ warning:   b: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1"
   
  stainless summary 
                                                                                            
-examples/04_adt.scala:16:48:   getImaginaryPart  body assertion: match exhaustiveness  valid    UO:smt-z3  0.0 
-examples/04_adt.scala:11:43:   getRealPart       body assertion: match exhaustiveness  valid    UO:smt-z3  0.0 
-examples/04_adt.scala:28:5:    multCommutative   postcondition                         invalid  UO:smt-z3  0.3 
+examples/04_adt.scala:15:48:   getImaginaryPart  body assertion: match exhaustiveness  valid    UO:smt-z3  0.0 
+examples/04_adt.scala:10:43:   getRealPart       body assertion: match exhaustiveness  valid    UO:smt-z3  0.0 
+examples/04_adt.scala:27:5:    multCommutative   postcondition                         invalid  UO:smt-z3  0.3 
 ................................................................................................................
-total: 3    valid: 2    (0 from cache) invalid: 1    unknown: 0    time:     0.3                               
+total: 3    valid: 2    (0 from cache) invalid: 1    unknown: 0    time:     0.4                               
 
 Shutting down executor service.

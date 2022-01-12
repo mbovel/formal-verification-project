@@ -34,7 +34,7 @@
 
 
 (check-sat)
-;(get-model)
+;(get-model) ; Uncomment to use with Z3
 
 
-;(exit)
+;(exit) ; Uncomment to use with Z3
