@@ -246,8 +246,8 @@ def multCommutative(a: Comp, b: Comp) =
 With the default Z3 solver, Inox returns:
 
 ```plain
-    z1: Complex -> BoxedComplex(BoxedInt(BigInt("1")), BoxedInt(BigInt("0")))
-    z2: Complex -> BoxedComplex(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
+    z1: Comp -> BoxedComp(BoxedInt(BigInt("1")), BoxedInt(BigInt("0")))
+    z2: Comp -> BoxedComp(BoxedInt(BigInt("0")), BoxedInt(BigInt("1")))
 ```
 
 For the parameter `z1`, our solver adds the following constraints:
@@ -261,8 +261,8 @@ For the parameter `z1`, our solver adds the following constraints:
 Which allows to return a smaller counter example:
 
 ```plain
-    z1: Complex -> UnboxedComplex(BigInt("0"), BigInt("0"))
-    z2: Complex -> UnboxedComplex(BigInt("1"), BigInt("1"))
+    z1: Comp -> UnboxedComp(BigInt("0"), BigInt("0"))
+    z2: Comp -> UnboxedComp(BigInt("1"), BigInt("1"))
 ```
 
 ## Recursion
