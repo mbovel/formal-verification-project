@@ -234,6 +234,8 @@ of its own type, or an ADT containing a field of another ADT type itself contain
 [Quick benchmarks and a nice boxplot with our examples comparing run times between
 (--solvers=smt-z3-min and --solvers=smt-z3-opt)].
 
+[TODO mention that there's no overhead for UNSAT VCs, which is the happy case when the code under verif is correct]
+
 [TODO add a sentence to the conclusion with a summary of the perf]
 
 # Conclusion
@@ -249,3 +251,6 @@ may be recursively defined, requiring the solver to stop at some point that must
 
 The next step is for our pull request to be merged, and then perhaps improved to support more scenarios or more complex minimization policies;
 this is no longer a pure formal methods problem but also enters human-computer interactions territory as to what users of verification tools prefer.
+
+Our code is in the pull requests [#171](https://github.com/epfl-lara/inox/pull/171) (merged) and [#176](https://github.com/epfl-lara/inox/pull/176) (open) for Inox.
+We also have a toy implementation of DPLL in Scala at <https://github.com/mbovel/formal-verification-project/tree/main/paper-test-implementation>.
